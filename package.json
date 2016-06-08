@@ -17,6 +17,10 @@
   },
   "homepage": "https://github.com/louisja/Lettus-Grow",
   "dependencies": {
-    "express": "^4.13.4"
+    "body-parser": "^1.15.1",
+    "express": "^4.13.4",
+    "mongodb": "^2.1.21",
+    "monk": "^1.0.1",
+    "pug": "^0.1.0"
   }
 }

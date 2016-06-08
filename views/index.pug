@@ -1,0 +1,29 @@
+doctype
+html
+  head
+    meta(charset="UTF-8")
+    title Lettus Grow
+    link(rel="stylesheet", type="text/css", href="/css/main.css")
+    script(src="https://d3js.org/d3.v3.min.js", charset="utf-8")
+  body
+    header
+      h5 Lettus Grow
+    main
+      section.pot
+        form(method="post", action="/")
+          label Blue intensity:
+            select(name="blueIntensity")
+              - for (var i=0; i < 11; i++)
+                option(value=i/10)=i/10
+          br
+          label Red intensity:
+            select(name="redIntensity")
+              - for (var i=0; i < 11; i++)
+                option(value=i/10)=i/10
+          br
+          label Start time:
+            select(name="startTime")
+              - for (var i=0; i < 49; i++)
+                option(value=i/2)=i/2
+          br
+          button(type="submit") Update
