@@ -5,25 +5,41 @@ html
     title Lettus Grow
     link(rel="stylesheet", type="text/css", href="/css/main.css")
     script(src="https://d3js.org/d3.v3.min.js", charset="utf-8")
+    script(src="/jquery/dist/jquery.min.js")
+    script(src="/moment/moment.js")
+    script(src="/combodate/src/combodate.js")
   body
     header
-      h5 Lettus Grow
+      h5 User: #{userId}
     main
-      section.pot
-        form(method="post", action="/")
-          label Blue intensity:
-            select(name="blueIntensity")
-              - for (var i=0; i < 11; i++)
-                option(value=i/10)=i/10
+      for pot in pots
+        section.pot
+          text Type: #{pot.type}
           br
-          label Red intensity:
-            select(name="redIntensity")
-              - for (var i=0; i < 11; i++)
-                option(value=i/10)=i/10
-          br
-          label Start time:
-            select(name="startTime")
-              - for (var i=0; i < 49; i++)
-                option(value=i/2)=i/2
-          br
-          button(type="submit") Update
+          text UUID: #{pot.UUID}
+          form(method="post", action="/update")
+            input(type="hidden", name="UUID", value="" + pot.UUID)
+            div
+              label Blue intensity:
+              select(name="blueIntensity")
+                - for (var i=0; i < 11; i++)
+                  option(value=i/10)=i/10
+
+            div
+              label Red intensity:
+              select(name="redIntensity")
+                - for (var i=0; i < 11; i++)
+                  option(value=i/10)=i/10
+            
+            div
+              label Light on:
+              input.startTime(type="text", data-format="HH:mm", data-template="HH : mm", name="startTime", value="" + pot.light.startTime)
+
+            div
+              label Light off:
+              input.endTime(type="text", data-format="HH:mm", data-template="HH : mm", name="endTime", value="" + pot.light.endTime)
+            
+            div
+              button(type="submit") Update
+
+    script(src="js/main.js")

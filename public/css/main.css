@@ -2,7 +2,7 @@
   margin: 0;
   border: 0;
   padding: 0;
-  /*border: 0.1px solid red;*/
+  /*border: 1px solid red;*/
 }
 
 main {
@@ -14,13 +14,14 @@ main {
 }
 
 .pot {
-  width: 400px;
-  height: 400px;
+  width: 320px;
+  /*height: 400px;*/
 }
 
+/*
 .pot input {
   width: 100%;
-}
+}*/
 
 header {
   width: 100%;

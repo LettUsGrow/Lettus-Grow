@@ -1,0 +1,23 @@
+{
+  "name": "Lettus-Grow",
+  "description": "Main server of Lettus Grow",
+  "main": "app.js",
+  "authors": [
+    "Louis Jackowski - Ashley"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/louisja/Lettus-Grow",
+  "moduleType": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "moment": "^2.13.0",
+    "combodate": "^1.1.0"
+  }
+}
