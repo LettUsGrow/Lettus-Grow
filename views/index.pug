@@ -12,24 +12,79 @@ html
     header
       h5 User: #{userId}
     main
-      for pot in pots
+      each pot, i in pots
         section.pot
-          text Type: #{pot.type}
-          br
-          text UUID: #{pot.UUID}
+          - var j = 0
+          while j < 4
+            //- If there is a plant, display the information
+            if pot.plants[j]
+              - var p = pot.plants[j]
+              div
+                label Position: #{j}, 
+                label Type: #{p.type}
+
+              div
+                label Planted: #{p.planted}
+
+              form(method="post", action="/removePlant")
+                input(type="hidden", name="position", value="" + j)
+                input(type="hidden", name="potUUID", value="" + pot.UUID)
+                input(type="hidden", name="potNumber", value="" + i)
+                button(type="submit") Remove
+
+              //- div
+              //-   label Newplant?:
+              //-   input(id="newPlant" + i, type="checkbox", value = 1, onclick="disabledForm"+i+".disabled = newPlant"+i+".checked ? '' : 'hidden';")
+
+              //- form(method="post", action="/updatePlant")
+              //-   fieldset(id="disabledForm" + i, disabled)
+              //-     input(type="hidden", name="UUID", value="" + pot.plants[j].UUID)
+              //-     div
+              //-       label Type:
+              //-       input(type="text", name="type", value="" + (pot.plants[j].type ? pot.plants[j].type : ''), required)
+
+              //-     div
+              //-       label Planted:
+              //-       input.plantedTime(type="text", data-format="DD-MM-YYYY", data-template="DD / MM / YYYY", name="plantedTime", value="" + (pot.plants[j].planted ? pot.plants[j].planted : ''), required)
+
+              //-     div
+              //-       button(id="plantSubmit" + i, type="submit") Update
+
+            //- No plant, we display a form for inputting a new plant
+            else
+              form(method="post", action="/addPlant")
+                input(type="hidden", name="potUUID", value="" + pot.UUID)
+                input(type="hidden", name="position", value="" + j)
+                input(type="hidden", name="potNumber", value="" + i)
+                div
+                  label Type:
+                  input(type="text", name="type", required)
+
+                div
+                  label Planted:
+                  input.plantedTime(type="text", data-format="DD-MM-YYYY", data-template="DD / MM / YYYY", name="plantedTime", required)
+
+                div
+                  button(type="submit") Add
+
+            - j++
+
+          div
+            label Type: #{pot.type}
+          div
+            label UUID: #{pot.UUID}
+
           form(method="post", action="/update")
             input(type="hidden", name="UUID", value="" + pot.UUID)
             div
               label Blue intensity:
-              select(name="blueIntensity")
-                - for (var i=0; i < 11; i++)
-                  option(value=i/10)=i/10
+              input(id="blueInput" + i, type="range", name="blueIntensity", min="0", max="1", step="0.05", value="" + pot.light.intensities.blue, oninput="blueOutput" + i + ".value = blueInput" + i + ".value")
+              output(id="blueOutput" + i) #{pot.light.intensities.blue}
 
             div
               label Red intensity:
-              select(name="redIntensity")
-                - for (var i=0; i < 11; i++)
-                  option(value=i/10)=i/10
+              input(id="redInput" + i, type="range", name="redIntensity", min="0", max="1", step="0.05", value="" + pot.light.intensities.red,  oninput="redOutput" + i + ".value = redInput" + i + ".value")
+              output(id="redOutput" + i) #{pot.light.intensities.red}
             
             div
               label Light on:
