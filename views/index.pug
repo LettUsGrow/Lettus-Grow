@@ -10,71 +10,58 @@ html
     script(src="/combodate/src/combodate.js")
   body
     header
-      h5 User: #{userId}
+      h5 User: #{user.id}
     main
       each pot, i in pots
         section.pot
-          - var j = 0
-          while j < 4
-            //- If there is a plant, display the information
-            if pot.plants[j]
-              - var p = pot.plants[j]
+          - var j = [];
+          - var k = 0;
+          each plant in plants
+            if plant.potUUID == pot.UUID
               div
-                label Position: #{j}, 
-                label Type: #{p.type}
+                label Position: #{plant.position}
+                label Type: #{plant.type}
 
               div
-                label Planted: #{p.planted}
+                label Planted: #{plant.planted}
 
               form(method="post", action="/removePlant")
-                input(type="hidden", name="position", value="" + j)
+                input(type="hidden", name="position", value="" + plant.position)
                 input(type="hidden", name="potUUID", value="" + pot.UUID)
-                input(type="hidden", name="potNumber", value="" + i)
                 button(type="submit") Remove
 
-              //- div
-              //-   label Newplant?:
-              //-   input(id="newPlant" + i, type="checkbox", value = 1, onclick="disabledForm"+i+".disabled = newPlant"+i+".checked ? '' : 'hidden';")
+              - j[plant.position] = true;
+              - k++;
 
-              //- form(method="post", action="/updatePlant")
-              //-   fieldset(id="disabledForm" + i, disabled)
-              //-     input(type="hidden", name="UUID", value="" + pot.plants[j].UUID)
-              //-     div
-              //-       label Type:
-              //-       input(type="text", name="type", value="" + (pot.plants[j].type ? pot.plants[j].type : ''), required)
+          //- Display a form for inputting a new plant if there is < 4 plants
+          if k < 4
+            form(method="post", action="/addPlant")
+              input(type="hidden", name="potUUID", value="" + pot.UUID)
+              //- input(type="hidden", name="position", value="" + j)
+              div
+                label Type:
+                input(type="text", name="type", required)
 
-              //-     div
-              //-       label Planted:
-              //-       input.plantedTime(type="text", data-format="DD-MM-YYYY", data-template="DD / MM / YYYY", name="plantedTime", value="" + (pot.plants[j].planted ? pot.plants[j].planted : ''), required)
+              div
+                label Position: 
+                select(name="position", required)
+                  - for (var t=0; t < 4; t++)
+                    if !j[t] 
+                      option(value=t)=t
 
-              //-     div
-              //-       button(id="plantSubmit" + i, type="submit") Update
+              div
+                label Planted:
+                input.plantedTime(type="text", data-format="DD-MM-YYYY", data-template="DD / MM / YYYY", name="plantedTime", required)
 
-            //- No plant, we display a form for inputting a new plant
-            else
-              form(method="post", action="/addPlant")
-                input(type="hidden", name="potUUID", value="" + pot.UUID)
-                input(type="hidden", name="position", value="" + j)
-                input(type="hidden", name="potNumber", value="" + i)
-                div
-                  label Type:
-                  input(type="text", name="type", required)
-
-                div
-                  label Planted:
-                  input.plantedTime(type="text", data-format="DD-MM-YYYY", data-template="DD / MM / YYYY", name="plantedTime", required)
-
-                div
-                  button(type="submit") Add
-
-            - j++
+              div
+                button(type="submit") Add
 
           div
             label Type: #{pot.type}
           div
             label UUID: #{pot.UUID}
 
-          form(method="post", action="/update")
+          form(method="post", action="/updatePot")
             input(type="hidden", name="UUID", value="" + pot.UUID)
             div
               label Blue intensity:

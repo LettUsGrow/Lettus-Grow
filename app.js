@@ -1,209 +1,247 @@
 var express = require('express');
 var app = express();
-var bodyParser = require('body-parser');
 var uuid = require('uuid');
+var passport = require('passport');
+var Strategy = require('passport-local').Strategy;
 
-// For parsing responses from a POST
-app.use(bodyParser.urlencoded({ extended: true }));
+var https = require('http');
+// var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
+// var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
 
-// var MongoClient = require('mongodb').MongoClient;
-// var mongo = require('mongodb');
-// var monk = require('monk');
+var httpServer = https.createServer(app);
 
 // MongoDB connection
 var db = require('monk')('localhost:27017/Lettus-Grow');
 // Collections
 var users = db.get('users');
-var plants = db.get('plants');
+var plantsAlive = db.get('plantsAlive');
+var plantsDead = db.get('plantsDead');
 var pots = db.get('pots');
 
-// users.insert({ userId: 'Louis' });
-// users.insert({ name: 'Jon', plants: {} });
+// Configure the local strategy for use by Passport.
+//
+// The local strategy require a `verify` function which receives the credentials
+// (`username` and `password`) submitted by the user.  The function must verify
+// that the password is correct and then invoke `cb` with a user object, which
+// will be set at `req.user` in route handlers after authentication.
+passport.use(new Strategy(
+  function(username, password, done) {
+    users.findOne({username: username}, function(err, user) {
+      if (err) { return done(err); }
+      if (!user) { return done(null, false); }
+      if (user.password != password) { return done(null, false); }
+      return done(null, user);
+    });
+  }));
 
-users.findAndModify({ query: { userId: 'Louis' }, update: { 
-  userId: 'Louis', 
-  pots: [
-    {
-      type: 'herbGarden',
-      UUID: 'aa0f78e1-d9af-41ad-a164-22e18a055806',
-      light: {
-        intensities: {
-          blue: 0.5,
-          red: 0.4
-        },
-        startTime: '20:30',
-        endTime: '10:30'
-      },
-      // Should be limited to four
-      plants: [
-        null,
-        null,
-        {
-          UUID: '59ffe42f-2184-4a3d-8e21-5789d385b0f5',
-          type: 'Basil',
-          planted: '05-01-2016',
-          // position: 3,
-          history: [
-            {
-              timeStamp: 1465550685, // http://www.unixtimestamp.com/
-              light: {
-                intensities: {
-                  blue: 0.5,
-                  red: 0.4
-                },
-                startTime: '20:30',
-                endTime: '10:30'
-              }
-            }
-          ]
-        },
-        null
-      ]
+// Configure Passport authenticated session persistence.
+//
+// In order to restore authentication state across HTTP requests, Passport needs
+// to serialize users into and deserialize users out of the session.  The
+// typical implementation of this is as simple as supplying the user ID when
+// serializing, and querying the user record by ID from the database when
+// deserializing.
+passport.serializeUser(function(user, done) {
+  done(null, user._id);
+});
+
+passport.deserializeUser(function(id, done) {
+  users.findOne({_id: id}, function (err, user) {
+    if (err) { return done(err); }
+    done(null, user);
+  });
+});
+
+// Initialize Passport and restore authentication state, if any, from the
+// session.
+app.use(require('cookie-parser')());
+app.use(require('body-parser').urlencoded({ extended: true })); // For parsing responses from a POST
+app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+
+users.remove({});
+plantsAlive.remove({});
+plantsDead.remove({});
+pots.remove({});
+
+var testUUID_0 = uuid.v4(),
+    testUUID_1 = uuid.v4(),
+    testUUID_2 = uuid.v4();
+
+users.insert({
+  username: 'louis',
+  password: 'test',
+  pots: [testUUID_0, testUUID_1] 
+});
+
+pots.insert({
+  type: 'herb',
+  UUID: testUUID_0,
+  light: {
+    intensities: {
+      blue: 0.5,
+      red: 0.4
     },
-    {
-      type: 'herbGarden',
-      UUID: '460443d4-2ae5-43d3-b73a-0b2f695825ff',
-      light: {
-        intensities: {
-          blue: 0.2,
-          red: 0.1
-        },
-        startTime: '21:30', // Format change? 20*60 + 30 = 1230
-        endTime: '11:30'
-      },
-      plants: [
-        null,
-        {
-          UUID: 'f67549e7-e251-4fd7-a71c-f9e6b3cd9916',
-          type: 'Basil',
-          // position: 2,
-          planted: '05-01-2016',
-          history: [
-            {
-              timeStamp: 1465550685, // http://www.unixtimestamp.com/
-              light: {
-                intensities: {
-                  blue: 0.5,
-                  red: 0.4
-                },
-                startTime: '20:30',
-                endTime: '10:30'
-              }
-            }
-          ]
-        },
-        null,
-        null
-      ]
-    }
-  ]
-}});
+    startTime: '20:30',
+    endTime: '10:30'
+  },
+  // plants: [null, null, null, null]
+});
 
-// users.findAndModify({userId: 'Louis'}, update: { currentPots: {}, exPots: {} } });
+pots.insert({
+  type: 'herb',
+  UUID: testUUID_1,
+  light: {
+    intensities: {
+      blue: 0.1,
+      red: 0.2
+    },
+    startTime: '12:30',
+    endTime: '08:30'
+  },
+  // plants: [null, null, null, null]
+});
 
-// users.remove({}, function (err) {
-//   if (err) throw err;
-// });
+plantsAlive.insert({
+  type: 'Lettuce',
+  planted: '11-05-2016',
+  position: 1,
+  potUUID: testUUID_0
+});
 
-// users.find({}, function (err, docs){
-//   console.log(err);
-//   console.log(docs);
-// });
+plantsAlive.insert({
+  type: 'Basil',
+  planted: '14-05-2016',
+  position: 3,
+  potUUID: testUUID_1
+});
 
-app.set('view engine', 'pug'); // Formally Jade
-
+app.set('view engine', 'pug');
 app.use(express.static('public'));
 app.use(express.static('bower_components'));
 
-app.post('/addPlant', function(req, res) {
-  var updatedInfo = req.body;
+app.post('/addPlant', 
+  require('connect-ensure-login').ensureLoggedIn(),
+  function(req, res) {
+  var update = req.body;
 
-  // Get current state of pot
-  users.find({ "pots.UUID": updatedInfo.potUUID }).on("success", function(doc) {
-    console.log();
-    console.log(doc.pots[parseInt(updatedInfo.potNumber)]);
-    console.log();
+  // Get current state of pot for history purposes
+  pots.findOne({ 'UUID': update.potUUID }, function(err, pot) {
+    
+    // Check if there's space?
+    plantsAlive.insert({ 
+      type: update.type,
+      position: parseInt(update.position),
+      potUUID: update.potUUID,
+      planted: update.planted,
 
-    var setModifier = { $set: {} };
+      // Create the first history insert
+      history: [{ 
+        timeStamp: Math.floor(Date.now() / 1000),
+        light: pot.light
+      }]
 
-    setModifier.$set["pots.$.plants." + updatedInfo.position] = {
-      UUID: uuid.v4(), // Create a fresh UUID
-      type: updatedInfo.type,
-      planted: updatedInfo.plantedTime,
-      history: [ // Create the first history insert
-        {
-          timeStamp: Math.floor(Date.now() / 1000), // Time now in seconds
-          light: {
-            intensities: {
-              blue: 0.5,
-              red: 0.4
-            },
-            startTime: '20:30',
-            endTime: '10:30'
-          }
-        }
-      ]
-    }
+    }, function(err, plant) {
 
-    users.update(
-      { "pots.UUID": updatedInfo.potUUID },
-      setModifier
-    ).on("success", function(doc) { 
       res.redirect('/');
     });
   });
 });
 
 
+app.post('/removePlant', 
+  require('connect-ensure-login').ensureLoggedIn(),
+  function(req, res) {
+  var update = req.body;
 
-app.post('/removePlant', function(req, res) {
-  var updatedInfo = req.body,
-      setModifier = { $set: {} };
+  // Get current state of pot for history purposes
+  pots.findOne({ 'UUID': update.potUUID }, function(err, pot) {
 
-  setModifier.$set["pots.$.plants." + updatedInfo.position] = null;
+    plantsAlive.findOne({ "potUUID": update.potUUID, "position": parseInt(update.position) }, function(err, plant) {
 
-  users.update(
-    { "pots.UUID": updatedInfo.potUUID },
-    setModifier
-  ).on("success", function(doc) { 
+      if(plant.history)
+        plant.history.push({
+          timeStamp: Math.floor(Date.now() / 1000),
+          light: pot.light
+        });
+
+      plantsDead.insert(plant, function(err) {
+
+        plantsAlive.remove({ "potUUID": update.potUUID, "position": parseInt(update.position) }, function(err) {
+          
+          res.redirect('/');
+        });
+      });
+    });
+  });
+});
+
+
+app.post('/updatePot', 
+  require('connect-ensure-login').ensureLoggedIn(),
+  function(req, res) {
+  var update = req.body,
+      light = {
+        intensities: {
+          blue: +update.blueIntensity,
+          red: +update.redIntensity
+        },
+        startTime: update.startTime,
+        endTime: update.endTime
+      };
+
+  pots.update({ "UUID": update.UUID },
+    { $set: { "light": light }
+  }).on('success', function(doc) { 
     res.redirect('/');
   });
 });
 
-
-
-
-
-// Authentication required
-app.post('/update', function(req, res) {
-  var updatedInfo = req.body;
-
-  users.update(
-    { "pots.UUID": updatedInfo.UUID },
-    { $set:
-      {
-        "pots.$.light.intensities.blue": updatedInfo.blueIntensity,
-        "pots.$.light.intensities.red": updatedInfo.redIntensity,
-        "pots.$.light.startTime": updatedInfo.startTime,
-        "pots.$.light.endTime": updatedInfo.endTime
-      }
-  }).on('success', function(doc) { console.log("Successfully updated DB"); });
-
-  res.redirect('/');
-});
-
-// For now we assume there's only one user - Louis
-// Display the database information
-// Display current plants
-app.get('/', function (req, res) {
-  users.findOne({ userId: 'Louis' }, function (err, docs) {
-    if (err) throw err;
-
-    console.log('GET:');
-    console.log(docs.pots);
-
-    res.render('index', docs);
+app.get('/login',
+  function(req, res){
+    res.render('login');
   });
-});
 
-app.listen(8000);
+app.post('/login', 
+  passport.authenticate('local', { failureRedirect: '/login' }),
+  function(req, res) {
+    res.redirect('/profile');
+  });
+
+app.get('/',
+  function(req, res) {
+    res.redirect('/profile');
+  });
+
+app.get('/logout',
+  function(req, res){
+    req.logout();
+    res.redirect('/');
+  });
+
+app.get('/profile',
+  require('connect-ensure-login').ensureLoggedIn(),
+  function (req, res) {
+
+    users.findOne({ _id: req.user._id }, function (err, user) { // Get the user
+      if (err) throw err;
+      pots.find({ 'UUID': { $in: user.pots }}, function(err, usersPots) {  // Using the user, find the pots based on the UUIDs
+
+        plantsAlive.find({ 'potUUID': { $in: user.pots }}, function(err, usersPlants) {
+
+          usersPlants.sort(function(a, b) {
+            return a.position - b.position;
+          });
+
+          res.render('index', {
+            user: user,
+            pots: usersPots ? usersPots : [],
+            plants: usersPlants ? usersPlants : []
+          });
+        });
+      });
+    });
+  });
+
+httpServer.listen(8000);
