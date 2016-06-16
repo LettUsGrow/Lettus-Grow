@@ -10,78 +10,97 @@ html
     script(src="/combodate/src/combodate.js")
   body
     header
-      h5 User: #{user.id}
-    main
-      each pot, i in pots
-        section.pot
-          - var j = [];
-          - var k = 0;
-          each plant in plants
-            if plant.potUUID == pot.UUID
-              div
-                label Position: #{plant.position}
-                label Type: #{plant.type}
+      h5.userName #{user.username}
+      //- a(href="/logout") Logout
+    div#flexBody
+      main
+        each pot, i in pots
+          section.pot
+            - var j = [];
+            - var k = 0;
+            each plant, p in plants
+              if plant.potUUID == pot.UUID
+                .plant
+                  div
+                    label.position #{plant.position}.
+                  div
+                    div
+                      label.type #{plant.type}
+                    div
+                      label Planted #{plant.planted}
+                    
+                    form(method="post", action="updateHealth")
+                      input(type="hidden", name="potUUID", value="" + pot.UUID, required)
+                      input(type="hidden", name="position", value="" + plant.position, required)
+                      label Health is 
+                      select(onchange="this.form.submit()", name="health")
+                        - var options = ['poor', 'medium', 'good']
+                        for option in options
+                          if plant.health == option
+                            option(value=option, selected="selected") #{option}
+                          else
+                            option(value=option) #{option}
+                  
+                  //- Remove plant form
+                  .flexer
+                    form(method="post", action="/removePlant")
+                      input(type="hidden", name="position", value="" + plant.position, required)
+                      input(type="hidden", name="potUUID", value="" + pot.UUID, required)
+                      button(type="submit") Delete
 
-              div
-                label Planted: #{plant.planted}
+                - j[plant.position] = true;
+                - k++;
 
-              form(method="post", action="/removePlant")
-                input(type="hidden", name="position", value="" + plant.position)
+            //- Display a form for inputting a new plant if there is < 4 plants
+            if k < 4
+              form(method="post", action="/addPlant").plant
                 input(type="hidden", name="potUUID", value="" + pot.UUID)
-                button(type="submit") Remove
+                div
+                  select(name="position", required).position
+                    - for (var t=0; t < 4; t++)
+                      if !j[t] 
+                        option(value=t)=t + '.'
 
-              - j[plant.position] = true;
-              - k++;
+                div
+                  div
+                    input(type="text", name="type", placeholder="Basil", required).type
+                  div
+                    label Planted: 
+                    input.plantedTime(type="text", data-format="DD-MM-YYYY", data-template="DD / MM / YYYY", name="planted", value="" + todaysDate, required)
 
-          //- Display a form for inputting a new plant if there is < 4 plants
-          if k < 4
-            form(method="post", action="/addPlant")
-              input(type="hidden", name="potUUID", value="" + pot.UUID)
-              //- input(type="hidden", name="position", value="" + j)
+                .flexer
+                  button(type="submit") Add
+
+            div
+              label #{pot.type}
+
+            form(method="post", action="/updatePot")
+              input(type="hidden", name="UUID", value="" + pot.UUID)
               div
-                label Type:
-                input(type="text", name="type", required)
+                label Blue intensity: 
+                input(id="blueInput" + i, type="range", name="blueIntensity", min="0", max="1", step="0.05", value="" + pot.light.intensities.blue, oninput="blueOutput" + i + ".value = blueInput" + i + ".value")
+                output(id="blueOutput" + i) #{pot.light.intensities.blue}
 
               div
-                label Position: 
-                select(name="position", required)
-                  - for (var t=0; t < 4; t++)
-                    if !j[t] 
-                      option(value=t)=t
+                label Red intensity: 
+                input(id="redInput" + i, type="range", name="redIntensity", min="0", max="1", step="0.05", value="" + pot.light.intensities.red,  oninput="redOutput" + i + ".value = redInput" + i + ".value")
+                output(id="redOutput" + i) #{pot.light.intensities.red}
+              
+              div
+                label Light on: 
+                input.startTime(type="text", data-format="HH:mm", data-template="HH : mm", name="startTime", value="" + pot.light.startTime)
 
               div
-                label Planted:
-                input.plantedTime(type="text", data-format="DD-MM-YYYY", data-template="DD / MM / YYYY", name="plantedTime", required)
-
+                label Light off: 
+                input.endTime(type="text", data-format="HH:mm", data-template="HH : mm", name="endTime", value="" + pot.light.endTime)
+              
               div
-                button(type="submit") Add
+                button(type="submit") Update
+      //- To be added later
+      nav
+      aside
 
-          div
-            label Type: #{pot.type}
-          div
-            label UUID: #{pot.UUID}
-
-          form(method="post", action="/updatePot")
-            input(type="hidden", name="UUID", value="" + pot.UUID)
-            div
-              label Blue intensity:
-              input(id="blueInput" + i, type="range", name="blueIntensity", min="0", max="1", step="0.05", value="" + pot.light.intensities.blue, oninput="blueOutput" + i + ".value = blueInput" + i + ".value")
-              output(id="blueOutput" + i) #{pot.light.intensities.blue}
-
-            div
-              label Red intensity:
-              input(id="redInput" + i, type="range", name="redIntensity", min="0", max="1", step="0.05", value="" + pot.light.intensities.red,  oninput="redOutput" + i + ".value = redInput" + i + ".value")
-              output(id="redOutput" + i) #{pot.light.intensities.red}
-            
-            div
-              label Light on:
-              input.startTime(type="text", data-format="HH:mm", data-template="HH : mm", name="startTime", value="" + pot.light.startTime)
-
-            div
-              label Light off:
-              input.endTime(type="text", data-format="HH:mm", data-template="HH : mm", name="endTime", value="" + pot.light.endTime)
-            
-            div
-              button(type="submit") Update
+    footer
+      h5 Lettus Grow &copy; 2016
 
     script(src="js/main.js")
