@@ -1,0 +1,23 @@
+/* Attachment point */
+.stats-for-pot {
+  width: 100%;
+  height: 125px;
+
+  .axis {
+    shape-rendering: crispEdges;
+
+    .tick text {
+      fill: #E6E6E6;
+    }
+
+    path, line {
+      stroke: #DCE0E0;
+    }
+  }
+
+  .line {
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 1px;
+  }
+}

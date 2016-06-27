@@ -1,0 +1,73 @@
+mixin plant(plant, plantPosition, potNumber)
+  if plant  
+    .plant-on-card
+      div
+        label.position #{plantPosition}.
+      div
+        div
+          label.type #{plant.type}
+        div
+          label Planted #{plant.planted}
+        
+        form(method="post", action="updateHealth")
+          input(type="hidden", name="potUUID", value="" + pot.UUID, required)
+          input(type="hidden", name="position", value="" + plant.position, required)
+          label Health is 
+          select(onchange="this.form.submit()", name="health")
+            - var options = ['poor', 'medium', 'good']
+            for option in options
+              if plant.health == option
+                option(value=option, selected="selected") #{option}
+              else
+                option(value=option) #{option}
+      
+      .plant-in-pot-info
+        div
+          select.info.blue
+            - for(var i=0; i<11; i++)
+              option(value=i)=i
+          
+          select.info.startTime
+            - for(var hour=0; hour<24; hour++)
+              - for(var minute=0; minute<60; minute+=15)
+                - var time = (hour < 10 ? "0" : "" ) + hour + ":" + minute + (minute ? "" : "0");
+                if pot.light.startTime == time
+                  option(value=time, selected="selected")=time
+                else
+                  option(value=time)=time
+        div
+          select.info.red
+            - for(var i=0; i<11; i++)
+              option(value=i)=i
+          
+          select.info.endTime
+            - for(var hour=0; hour<24; hour++)
+              - for(var minute=0; minute<60; minute+=15)
+                - var time = (hour < 10 ? "0" : "" ) + hour + ":" + minute + (minute ? "" : "0");
+                if pot.light.endTime == time
+                  option(value=time, selected="selected")=time
+                else
+                  option(value=time)=time
+      
+      //- Remove plant form
+      form(method="post", action="/removePlant")
+        input(type="hidden", name="position", value="" + plant.position, required)
+        input(type="hidden", name="potUUID", value="" + pot.UUID, required)
+        button(type="submit")  
+          img(src="/img/delete-icon-grey.svg").icon
+  else
+    div(onclick="hideOtherForms(this);").plant-on-card.button
+      label.position #{plantPosition}.
+      form(id="form" + potNumber + "" + plantPosition, method="post", action="/addPlant", hidden, autocomplete="off").plant
+        input(type="hidden", name="potUUID", value="" + pot.UUID)
+        input(type="hidden", name="position", value="" + plantPosition)
+        div
+          div
+            input(type="text", name="type", placeholder="Basil", required).type
+          div
+            label Planted: 
+            input.plantedTime(type="text", data-format="DD-MM-YYYY", data-template="DD / MM / YYYY", name="planted", value="" + todaysDate, required)
+
+      .flex-to-right
+        button(form="form" + potNumber + "" + plantPosition, type="submit", hidden)
+          img(src="/img/add-icon-grey.svg").icon

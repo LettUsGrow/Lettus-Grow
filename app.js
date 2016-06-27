@@ -6,10 +6,8 @@ var Strategy = require('passport-local').Strategy;
 var moment = require('moment');
 var bcrypt = require('bcrypt');
 var ensure = require('connect-ensure-login');
-const saltRounds = 10;
 
 var https = require('http');
-
 var httpServer = https.createServer(app);
 
 // MongoDB connection
@@ -17,7 +15,8 @@ var db = require('monk')('localhost:27017/Lettus-Grow');
 // Collections
 var users = db.get('users');
 var plantsAlive = db.get('plantsAlive');
-plantsAlive.options.multi = true;
+    plantsAlive.options.multi = true;
+var plantsInfo = db.get('plantsInfo');
 var plantsDead = db.get('plantsDead');
 var pots = db.get('pots');
 
@@ -60,18 +59,20 @@ pots.remove({});
 
 var testUUID_0 = uuid.v4(),
     testUUID_1 = uuid.v4(),
-    testUUID_2 = uuid.v4();
+    testUUID_2 = uuid.v4(),
+    testUUID_3 = uuid.v4();
 
-bcrypt.hash('password', saltRounds, function(err, hash) {
+const saltRounds = 10;
+bcrypt.hash('true', saltRounds, function(err, hash) {
   users.insert({
-    username: 'louis',
+    username: 'Louis',
     password: hash,
-    pots: [testUUID_0, testUUID_1] 
+    pots: [testUUID_0, testUUID_1, testUUID_3] 
   });
 });
 
 pots.insert({
-  type: 'Herb',
+  type: 'Herb garden',
   UUID: testUUID_0,
   light: {
     intensities: {
@@ -84,12 +85,25 @@ pots.insert({
 });
 
 pots.insert({
-  type: 'Herb',
+  type: 'Herb garden',
   UUID: testUUID_1,
   light: {
     intensities: {
       blue: 0.1,
       red: 0.2
+    },
+    startTime: '12:30',
+    endTime: '08:30'
+  },
+});
+
+pots.insert({
+  type: 'Herb garden',
+  UUID: testUUID_3,
+  light: {
+    intensities: {
+      blue: 0.1,
+      red: 0.5
     },
     startTime: '12:30',
     endTime: '08:30'
@@ -112,6 +126,14 @@ plantsAlive.insert({
   potUUID: testUUID_1
 });
 
+plantsAlive.insert({
+  type: 'Lettuce',
+  planted: '18-06-2016',
+  health: 'poor',
+  position: 1,
+  potUUID: testUUID_1
+});
+
 app.set('view engine', 'pug');
 app.use(express.static('public'));
 app.use(express.static('bower_components'));
@@ -122,24 +144,32 @@ app.post('/addPlant',
     var update = req.body;
 
     // Get current state of pot for history purposes
-    pots.findOne({ 'UUID': update.potUUID }, function(err, pot) {      
-      // Check if there's space?
-      plantsAlive.insert({ 
-        type: update.type,
-        position: parseInt(update.position),
-        potUUID: update.potUUID,
-        planted: update.planted,
-        health: 'good',
+    pots.findOne({ 'UUID': update.potUUID }, function(err, pot) {
 
-        // Create the first history insert
-        history: [{ 
-          timeStamp: Math.floor(Date.now() / 1000),
-          light: pot.light
-        }]
+      // Check if there's space
+      plantsAlive.findOne({'potUUID': update.potUUID, position: parseInt(update.position)}, function(err, plant) {
 
-      }, function(err, plant) {
+        // If there's already a plant in that position, ignore the request
+        if(plant) {
+          res.redirect('/');
+        } else {
+          plantsAlive.insert({ 
+            type: update.type,
+            position: parseInt(update.position),
+            potUUID: update.potUUID,
+            planted: update.planted,
+            health: 'good',
 
-        res.redirect('/');
+            // Create the first history insert
+            history: [{ 
+              timeStamp: Math.floor(Date.now() / 1000),
+              light: pot.light
+            }]
+          }, function(err, plant) {
+
+            res.redirect('/');
+          });
+        }
       });
     });
   });
@@ -213,7 +243,7 @@ app.post('/updatePot',
           light: updateLight
         };
 
-    pots.update({ "UUID": update.UUID }, { $set: { "light": updateLight }}, function(doc) {
+    pots.update({ "UUID": update.UUID }, { $set: { "light": updateLight }}, function(err) {
 
       plantsAlive.update({ "potUUID": update.UUID }, { $push: { history: updateHistory }}, function(err) {
 
@@ -250,12 +280,18 @@ app.get('/profile',
 
     users.findOne({ _id: req.user._id }, function (err, user) { // Get the user
       if (err) throw err;
+      
       pots.find({ 'UUID': { $in: user.pots }}, function(err, usersPots) {  // Using the user, find the pots based on the UUIDs
+        if (err) throw err;
 
         plantsAlive.find({ 'potUUID': { $in: user.pots }}, function(err, usersPlants) {
+          if (err) throw err;
 
-          usersPlants.sort(function(a, b) {
-            return a.position - b.position;
+          // We now want to marry the plants to their pots
+          // First we create blank spaces for each pot
+          usersPots = usersPots.map(function(obj) {
+            obj.plants = [null, null, null, null];
+            return obj;
           });
 
           // Get age parameter
@@ -264,11 +300,19 @@ app.get('/profile',
             return obj;
           });
 
+          // For each plant, we then insert it in to the correct pot
+          usersPlants.forEach(function(plant) {
+            usersPots.forEach(function(pot) {
+              if(plant.potUUID == pot.UUID) {
+                pot.plants[plant.position] = plant;
+              }
+            });
+          });
+
           res.render('index', {
             todaysDate: moment().format('DD-MM-YYYY'),
             user: user,
             pots: usersPots ? usersPots : [],
-            plants: usersPlants ? usersPlants : []
           });
         });
       });
@@ -279,9 +323,9 @@ function age(date) {
  return moment(new Date(date.split('-').reverse().join('-'))).fromNow(); 
 }
 
-app.use(function errorHandler(err, req, res, next) {
-  res.status(500);
-  res.render('error', { error: err });
-  });
+// app.use(function errorHandler(err, req, res, next) {
+//   res.status(500);
+//   res.render('error', { error: err });
+//   });
 
 httpServer.listen(8000);

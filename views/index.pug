@@ -1,106 +1,34 @@
+include ./includes/pot/pot.pug
+include ./includes/header.pug
+include ./includes/footer.pug
+
 doctype
 html
   head
     meta(charset="UTF-8")
     title Lettus Grow
     link(rel="stylesheet", type="text/css", href="/css/main.css")
-    script(src="https://d3js.org/d3.v3.min.js", charset="utf-8")
+    link(rel="stylesheet", type="text/css", href="/css/stats.css")
+    script(src="https://d3js.org/d3.v4.0.0-alpha.50.min.js", charset="utf-8")
+
+    //- Combodate requires jquery and moment
     script(src="/jquery/dist/jquery.min.js")
     script(src="/moment/moment.js")
     script(src="/combodate/src/combodate.js")
+
+    //- Roboto font
+    link(href='https://fonts.googleapis.com/css?family=Roboto:500,400,500italic,300,400italic' rel='stylesheet' type='text/css')
   body
-    header
-      h5.userName #{user.username}
-      //- a(href="/logout") Logout
-    div#flexBody
+    +header()
+
+    #flex-body-outer
       main
-        each pot, i in pots
-          section.pot
-            - var j = [];
-            - var k = 0;
-            each plant, p in plants
-              if plant.potUUID == pot.UUID
-                .plant
-                  div
-                    label.position #{plant.position}.
-                  div
-                    div
-                      label.type #{plant.type}
-                    div
-                      label Planted #{plant.planted}
-                    
-                    form(method="post", action="updateHealth")
-                      input(type="hidden", name="potUUID", value="" + pot.UUID, required)
-                      input(type="hidden", name="position", value="" + plant.position, required)
-                      label Health is 
-                      select(onchange="this.form.submit()", name="health")
-                        - var options = ['poor', 'medium', 'good']
-                        for option in options
-                          if plant.health == option
-                            option(value=option, selected="selected") #{option}
-                          else
-                            option(value=option) #{option}
-                  
-                  //- Remove plant form
-                  .flexer
-                    form(method="post", action="/removePlant")
-                      input(type="hidden", name="position", value="" + plant.position, required)
-                      input(type="hidden", name="potUUID", value="" + pot.UUID, required)
-                      button(type="submit") Delete
-
-                - j[plant.position] = true;
-                - k++;
-
-            //- Display a form for inputting a new plant if there is < 4 plants
-            if k < 4
-              form(method="post", action="/addPlant").plant
-                input(type="hidden", name="potUUID", value="" + pot.UUID)
-                div
-                  select(name="position", required).position
-                    - for (var t=0; t < 4; t++)
-                      if !j[t] 
-                        option(value=t)=t + '.'
-
-                div
-                  div
-                    input(type="text", name="type", placeholder="Basil", required).type
-                  div
-                    label Planted: 
-                    input.plantedTime(type="text", data-format="DD-MM-YYYY", data-template="DD / MM / YYYY", name="planted", value="" + todaysDate, required)
-
-                .flexer
-                  button(type="submit") Add
-
-            div
-              label #{pot.type}
-
-            form(method="post", action="/updatePot")
-              input(type="hidden", name="UUID", value="" + pot.UUID)
-              div
-                label Blue intensity: 
-                input(id="blueInput" + i, type="range", name="blueIntensity", min="0", max="1", step="0.05", value="" + pot.light.intensities.blue, oninput="blueOutput" + i + ".value = blueInput" + i + ".value")
-                output(id="blueOutput" + i) #{pot.light.intensities.blue}
-
-              div
-                label Red intensity: 
-                input(id="redInput" + i, type="range", name="redIntensity", min="0", max="1", step="0.05", value="" + pot.light.intensities.red,  oninput="redOutput" + i + ".value = redInput" + i + ".value")
-                output(id="redOutput" + i) #{pot.light.intensities.red}
-              
-              div
-                label Light on: 
-                input.startTime(type="text", data-format="HH:mm", data-template="HH : mm", name="startTime", value="" + pot.light.startTime)
-
-              div
-                label Light off: 
-                input.endTime(type="text", data-format="HH:mm", data-template="HH : mm", name="endTime", value="" + pot.light.endTime)
-              
-              div
-                button(type="submit") Update
-      //- To be added later
+        each pot, j in pots
+          +pot(pot, j)      
       nav
       aside
 
-    footer
-      h5 Lettus Grow &copy; 2016
+    +footer()
 
     script(src="js/main.js")
+    script(src="js/stats.js")

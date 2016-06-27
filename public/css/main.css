@@ -1,114 +1,205 @@
-@font-face {
-  font-family: Skolar-Sans-Medium-Italic; 
-  src: url('../font/Skolar-Medium-Italic.woff');
-}
-
-@font-face {
-  font-family: Skolar-Sans-Thin; 
-  src: url('../font/Skolar-Thin.woff');
-}
-
-@font-face {
-  font-family: Skolar-Sans-Medium; 
-  src: url('../font/Skolar-Medium.woff');
-}
-
 * {
   margin: 0;
   border: 0;
   padding: 0;
-  /*border: 1px solid red;*/
-}
+  outline: none;
+  -moz-outline: none;
+  -moz-user-focus: ignore; }
 
 body {
-  font-family: Skolar-Sans-Thin;
-  font-size: medium;
+  background-color: #EFFBEF;
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
   display: flex;
   min-height: 100vh;
-  flex-direction: column;
-}
+  flex-direction: column; }
 
-#flexBody {
+#flex-body-outer {
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  flex: 1;
-}
+  flex: 1 0 auto; }
+  #flex-body-outer main {
+    height: 0%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap; }
 
 nav {
-  order: -1;
-}
-
-select,
-.flexer button {
-  font-family: Skolar-Sans-Medium;
-  font-size: medium;
-  border-style: none;
-  background-color: white;
-
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-content: flex-start;
-}
-
-.plant {
-  margin-bottom: 5px;
-  display: -webkit-flex;
-  display: flex;
-}
-
-.position {
-  margin-right: 5px;
-}
-
-.plant .type,
-.plant .position,
-.flexer button,
-.userName {
-  font-family: Skolar-Sans-Medium-Italic;
-  font-size: x-large;
-}
-
-.flexer {
-  -webkit-flex: 1;
-  flex: 1;
-  text-align: right;
-}
-
-.pot {
-  margin: 15px;
-  width: 280px;
-}
+  order: -1; }
 
 header {
+  flex: none;
+  background-color: white;
   display: flex;
-  background-color: #F6F62F;
   align-items: center;
   width: 100%;
-  height: 50px;
-}
+  height: 60px;
+  justify-content: space-between; }
+
+.pot-card {
+  background-color: white;
+  border: 1px solid #DCE0E0;
+  margin: 0px 20px 20px 0px;
+  padding: 15px 15px 0px 15px;
+  width: 340px;
+  height: 0%;
+  -webkit-box-shadow: 0px 2px 3px 0px #dedede;
+  -moz-box-shadow: 0px 2px 3px 0px #dedede;
+  box-shadow: 0px 2px 3px 0px #dedede; }
+
+.plant-on-card {
+  padding: 8px 0px 8px 0px;
+  display: -webkit-flex;
+  display: flex;
+  border-bottom: 1px solid #DCE0E0; }
+  .plant-on-card .type,
+  .plant-on-card .position {
+    font-weight: 400;
+    font-style: italic;
+    font-size: 20px; }
+  .plant-on-card .position {
+    margin-right: 5px; }
+  .plant-on-card select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0;
+    display: inline-block;
+    cursor: pointer;
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: medium;
+    background-color: transparent; }
+  .plant-on-card .flex-to-right {
+    -webkit-flex: 1;
+    flex: 1;
+    text-align: right; }
+  .plant-on-card .info {
+    margin: 2px;
+    padding: 2px;
+    font-size: 20px;
+    border-radius: 2px; }
+  .plant-on-card .blue {
+    background-color: #9BD6EA; }
+  .plant-on-card .red {
+    background-color: #EB7377; }
+  .plant-on-card .endTime {
+    color: white;
+    background-color: #B3B2B2; }
+  .plant-on-card .plant-in-pot-info {
+    margin-right: 10px;
+    -webkit-flex: 1;
+    flex: 1;
+    text-align: right; }
+
+input[type="text"] {
+  background-color: transparent; }
+
+.button {
+  cursor: pointer; }
+
+.button:hover {
+  background-color: #CDF9CE; }
+
+button {
+  background-color: white;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none; }
+
+.plant-on-card:nth-last-child(1) {
+  border-bottom: none; }
+
+#spacer {
+  border-right: 1px;
+  border-bottom: 1px solid #DCE0E0;
+  width: 100%;
+  height: 60px; }
+
+#logo {
+  cursor: pointer;
+  border: 1px solid #DCE0E0;
+  display: flex;
+  height: 60px;
+  width: 60px; }
+
+.icon {
+  background-color: transparent;
+  cursor: pointer;
+  height: 25px;
+  width: 25px; }
+
+#profile {
+  float: right;
+  border-style: solid none solid solid;
+  border-color: #DCE0E0;
+  border-width: 1px;
+  height: 60px;
+  display: flex;
+  align-items: center; }
+
+#profile:hover .dropdown-content {
+  display: block; }
+
+.dropdown:nth-child(1) {
+  background-color: transparent;
+  border-style: none none solid none; }
+
+#logo:hover,
+#profile:hover {
+  background-color: #F5F5F5; }
+
+.dropdown-content {
+  display: none;
+  right: 0;
+  position: absolute;
+  min-width: 160px; }
+
+.dropdown {
+  display: block;
+  background-color: white;
+  height: 60px;
+  border-style: none none solid solid;
+  border-color: #DCE0E0;
+  border-width: 1px;
+  display: flex;
+  align-items: center; }
+
+.dropdown a {
+  padding-left: 15px;
+  text-decoration: none; }
+
+.userName {
+  display: block;
+  padding: 15px;
+  font-family: Skolar-Sans-Thin;
+  font-size: medium; }
+
+#pretendImage {
+  display: block;
+  background-color: white;
+  border-radius: 100%;
+  margin-right: 15px;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #DCE0E0; }
 
 footer {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100px;
-  background-color: #F2F2F2;
-}
+  flex: none; }
 
-@media (min-width: 1100px) {
-  #flexBody {
-    flex-direction: row;
-  }
+@media (min-width: 1200px) {
+  #flex-body-outer {
+    flex-direction: row; }
+
+  main {
+    flex: 1; }
+
   nav, aside {
-    flex: 0 0 12em
-  }
-}
+    flex: 0 0 12em; } }
+
+/*# sourceMappingURL=main.css.map */
