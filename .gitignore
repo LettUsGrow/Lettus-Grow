@@ -4,3 +4,4 @@ data
 bower_components
 npm-debug.log
 aws
+.sass-cache
