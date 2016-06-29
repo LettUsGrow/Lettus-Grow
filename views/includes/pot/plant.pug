@@ -9,7 +9,7 @@ mixin plant(plant, plantPosition, potNumber)
         div
           label Planted #{plant.planted}
         
-        form(method="post", action="updateHealth")
+        form(method="post", action="/plants/health")
           input(type="hidden", name="potUUID", value="" + pot.UUID, required)
           input(type="hidden", name="position", value="" + plant.position, required)
           label Health is 
@@ -50,17 +50,17 @@ mixin plant(plant, plantPosition, potNumber)
                   option(value=time)=time
       
       //- Remove plant form
-      form(method="post", action="/removePlant")
-        input(type="hidden", name="position", value="" + plant.position, required)
-        input(type="hidden", name="potUUID", value="" + pot.UUID, required)
+      form(method="post", action="/plants/remove")
+        input(type="hidden", name="position", value=plant.position, required)
+        input(type="hidden", name="potUUID", value=pot.UUID, required)
         button(type="submit")  
           img(src="/img/delete-icon-grey.svg").icon
   else
     div(onclick="hideOtherForms(this);").plant-on-card.button
       label.position #{plantPosition}.
-      form(id="form" + potNumber + "" + plantPosition, method="post", action="/addPlant", hidden, autocomplete="off").plant
-        input(type="hidden", name="potUUID", value="" + pot.UUID)
-        input(type="hidden", name="position", value="" + plantPosition)
+      form(id="form" + potNumber + "" + plantPosition, method="post", action="/plants/add", hidden, autocomplete="off").plant
+        input(type="hidden", name="potUUID", value=pot.UUID)
+        input(type="hidden", name="position", value=plantPosition)
         div
           div
             input(type="text", name="type", placeholder="Basil", required).type
