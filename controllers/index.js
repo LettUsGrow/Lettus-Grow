@@ -18,10 +18,4 @@ router.get('/', function(req, res) {
   res.render('login');
 });
 
-router.get('*', function(req, res, next) {
-  var err = new Error();
-  err.status = 404;
-  next(err);
-});
-
 module.exports = router;

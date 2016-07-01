@@ -4,28 +4,26 @@ var app = express();
 var http = require('http');
 var httpServer = http.createServer(app);
 
+// Any middleware lives here. Currently just passport, which authenticates users
 var passport = require('./middlewares/pass');
 
-app.use(require('cookie-parser')('keyboard cat'));
+// For parsing responses from a POST request
 app.use(require('body-parser').json());
-app.use(require('body-parser').urlencoded({ extended: true })); // For parsing responses from a POST
-app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true })); // cookie: { maxAge: 10 * 60 * 1000 }
+app.use(require('body-parser').urlencoded({ extended: true }));
+
+// All of these are basically for authenticating users
+app.use(require('cookie-parser')('keyboard cat'));
+app.use(require('express-session')({ secret: 'keyboard cat', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.set('view engine', 'pug');
+// So we can serve static assets like images
 app.use(express.static('public'));
 app.use(express.static('bower_components'));
 
+// All the routes live in here
 app.use(require('./controllers'));
 
-app.use(function(err, req, res, next) {
-  if(err.status !== 404) {
-    return next();
-  }
- 
-  res.status(404);
-  res.send(err.message || '** no unicorns here **');
-});
-
+// Finally create the server and listen on port 8000
 httpServer.listen(8000);
