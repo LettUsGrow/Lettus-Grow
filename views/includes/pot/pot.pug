@@ -4,12 +4,6 @@ mixin pot(pot, j)
   section.pot-card
     h2 Herb garden
     .stats-for-pot
+    //- button(onclick="getPotStatus()", style="") Test
     each plant, p in pot.plants
       +plant(plant, p, j)
-
-
-//- Old code
-
-//- label Blue intensity: 
-//- input(id="blueInput" + i, type="range", name="blueIntensity", min="0", max="1", step="0.05", value="" + pot.light.intensities.blue, oninput="blueOutput" + i + ".value = blueInput" + i + ".value")
-//- output(id="blueOutput" + i) #{pot.light.intensities.blue}

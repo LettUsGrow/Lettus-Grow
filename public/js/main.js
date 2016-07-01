@@ -14,12 +14,29 @@ function hideOtherForms(e) {
       buttons = document.getElementsByTagName('button');
   
   for (var i = 0; i < forms.length; i++)
-    if(forms[i].className == "plant") forms[i].hidden = 'hidden';
+    if(forms[i].className == "plant") 
+      forms[i].hidden = 'hidden';
   
   for (var i = 0; i < buttons.length; i++)
-    if(buttons[i].className == "add-button") buttons[i].hidden = 'hidden';
+    if(buttons[i].className == "add-button") 
+      buttons[i].hidden = 'hidden';
   
   // Unhide the form
   e.getElementsByTagName('form')[0].hidden = '';
   e.getElementsByTagName('button')[0].hidden = '';
+}
+
+function getPotStatus() {
+  var xhr = new XMLHttpRequest();
+
+  xhr.open("GET", "/pots/status", true);
+  
+  xhr.onreadystatechange = function () {
+    if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+      var response = JSON.parse(xhr.responseText);
+      console.log(response);
+    };
+  };
+
+  xhr.send();
 }
