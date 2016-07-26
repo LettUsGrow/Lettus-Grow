@@ -12,7 +12,7 @@ This package contains the main server for Lettus Grow.
 + *monk*: This works on top of MongoDB to provide easy functionality.
 + *pug*: (Formally called *Jade*) This is a template language for HTML. This is what we use when we call `res.render()`
 + *sass*: An extension of CSS that compiles to CSS.
-+ *combodate*: An easy way to have HTML <select> blocks for dates.
++ *combodate*: An easy way to have HTML \<select\> blocks for dates.
 + *uuid*: Create UUIDs for the pots.
 
 
