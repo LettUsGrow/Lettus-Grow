@@ -1,7 +1,10 @@
 # Lettus-Grow
+
 This package contains the main server for Lettus Grow.
 
+
 ## Technologies
+
 * First and foremost: `node`. This is server side Javascript.
 * `express`: Runs on top of node and provides lots of useful functionalities.
 * `passport`: A middleware for authenticating the logins.
@@ -12,7 +15,9 @@ This package contains the main server for Lettus Grow.
 * `combodate`: An easy way to have HTML <select> blocks for dates.
 * `uuid`: Create UUIDs for the pots.
 
+
 ## Installation
+
 * Download node, which automatically gives you npm, a package manager: https://nodejs.org/en/download/
 * Next you need to get bower, another package manager: `npm install -g bower`
 * The files `bower.json` and `package.json` contain the dependancies for the application. To install them we use the commands `npm install`, followed by `bower install`
